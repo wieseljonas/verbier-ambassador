@@ -28,20 +28,6 @@ const createCustomIcon = (emoji: string, isMain: boolean = false) => {
   });
 };
 
-// Create a label for walking time on paths (legend style)
-const createTimeLabel = (walkingTime: string) => {
-  return L.divIcon({
-    className: "time-label-marker",
-    html: `
-      <div class="time-label">
-        🚶 ${walkingTime}
-      </div>
-    `,
-    iconSize: [80, 28],
-    iconAnchor: [40, 14],
-  });
-};
-
 // Create a label for POI names at the marker (legend style)
 const createNameLabel = (name: string, emoji: string) => {
   return L.divIcon({
@@ -173,21 +159,9 @@ export default function MapComponent() {
           line-height: 1;
         }
 
-        .time-label-marker,
         .name-label-marker {
           background: transparent !important;
           border: none !important;
-        }
-
-        .time-label {
-          background: rgba(55, 65, 60, 0.9);
-          color: white;
-          padding: 5px 12px;
-          border-radius: 6px;
-          font-size: 13px;
-          font-weight: 500;
-          white-space: nowrap;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
 
         .name-label {
@@ -305,22 +279,6 @@ export default function MapComponent() {
               }}
             />
           ))}
-
-        {/* Walking time labels on paths (at midpoint) */}
-        {pois
-          .filter((poi) => !poi.isMain && poi.walkingTime)
-          .map((poi) => {
-            const midLat = (ambassadorCoords[0] + poi.lat) / 2;
-            const midLng = (ambassadorCoords[1] + poi.lng) / 2;
-            return (
-              <Marker
-                key={`time-${poi.name}`}
-                position={[midLat, midLng]}
-                icon={createTimeLabel(poi.walkingTime!)}
-                interactive={false}
-              />
-            );
-          })}
 
         {/* POI name labels (at the POI marker) */}
         {pois
