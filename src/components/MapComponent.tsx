@@ -28,18 +28,31 @@ const createCustomIcon = (emoji: string, isMain: boolean = false) => {
   });
 };
 
-// Create a label icon for path labels
-const createPathLabel = (name: string, walkingTime: string) => {
+// Create a label for walking time on paths (legend style)
+const createTimeLabel = (walkingTime: string) => {
   return L.divIcon({
-    className: "path-label-marker",
+    className: "time-label-marker",
     html: `
-      <div class="path-label">
-        <span class="path-label-name">${name}</span>
-        <span class="path-label-time">🚶 ${walkingTime}</span>
+      <div class="time-label">
+        🚶 ${walkingTime}
       </div>
     `,
-    iconSize: [120, 40],
-    iconAnchor: [60, 20],
+    iconSize: [80, 28],
+    iconAnchor: [40, 14],
+  });
+};
+
+// Create a label for POI names at the marker (legend style)
+const createNameLabel = (name: string, emoji: string) => {
+  return L.divIcon({
+    className: "name-label-marker",
+    html: `
+      <div class="name-label">
+        ${emoji} ${name}
+      </div>
+    `,
+    iconSize: [140, 28],
+    iconAnchor: [70, -6],
   });
 };
 
@@ -160,36 +173,32 @@ export default function MapComponent() {
           line-height: 1;
         }
 
-        .path-label-marker {
+        .time-label-marker,
+        .name-label-marker {
           background: transparent !important;
           border: none !important;
         }
 
-        .path-label {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          background: rgba(26, 46, 53, 0.95);
+        .time-label {
+          background: rgba(55, 65, 60, 0.9);
           color: white;
-          padding: 6px 12px;
-          border-radius: 8px;
-          box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
-          border: 2px solid #d4a853;
+          padding: 5px 12px;
+          border-radius: 6px;
+          font-size: 13px;
+          font-weight: 500;
           white-space: nowrap;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
 
-        .path-label-name {
-          font-size: 11px;
-          font-weight: 600;
+        .name-label {
+          background: rgba(55, 65, 60, 0.9);
           color: white;
-        }
-
-        .path-label-time {
-          font-size: 12px;
-          font-weight: 700;
-          color: #d4a853;
-          margin-top: 2px;
+          padding: 5px 12px;
+          border-radius: 6px;
+          font-size: 13px;
+          font-weight: 500;
+          white-space: nowrap;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
 
         .pulse-ring {
@@ -297,7 +306,7 @@ export default function MapComponent() {
             />
           ))}
 
-        {/* Labels at midpoints */}
+        {/* Walking time labels on paths (at midpoint) */}
         {pois
           .filter((poi) => !poi.isMain && poi.walkingTime)
           .map((poi) => {
@@ -305,13 +314,25 @@ export default function MapComponent() {
             const midLng = (ambassadorCoords[1] + poi.lng) / 2;
             return (
               <Marker
-                key={`label-${poi.name}`}
+                key={`time-${poi.name}`}
                 position={[midLat, midLng]}
-                icon={createPathLabel(poi.name, poi.walkingTime!)}
+                icon={createTimeLabel(poi.walkingTime!)}
                 interactive={false}
               />
             );
           })}
+
+        {/* POI name labels (at the POI marker) */}
+        {pois
+          .filter((poi) => !poi.isMain)
+          .map((poi) => (
+            <Marker
+              key={`name-${poi.name}`}
+              position={[poi.lat, poi.lng]}
+              icon={createNameLabel(poi.name, poi.emoji)}
+              interactive={false}
+            />
+          ))}
 
         {pois.map((poi) => (
           <Marker
