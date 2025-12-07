@@ -2,8 +2,28 @@
 
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
-import { useRef } from "react";
-import { MapPin, Mountain, Plane, Train, Wine, Beer, Utensils, ShoppingBag } from "lucide-react";
+import { useRef, useEffect, useState } from "react";
+import {
+  MapPin,
+  Mountain,
+  Plane,
+  Train,
+  Wine,
+  Beer,
+  Utensils,
+  Navigation,
+} from "lucide-react";
+import dynamic from "next/dynamic";
+
+// Dynamically import the map component to avoid SSR issues with Leaflet
+const MapComponent = dynamic(() => import("./MapComponent"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full bg-alpine-800 flex items-center justify-center">
+      <div className="text-alpine-400">Loading map...</div>
+    </div>
+  ),
+});
 
 const walkingDistances = [
   {
@@ -86,12 +106,54 @@ export function Location() {
             Unbeatable Location
           </p>
           <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl text-white mb-6">
-            Everything is <span className="italic font-light">Walking Distance</span>
+            Everything is{" "}
+            <span className="italic font-light">Walking Distance</span>
           </h2>
           <p className="text-alpine-300 max-w-2xl mx-auto">
-            Chemin de la Barmète 17 — arguably the most coveted address in Verbier. 
-            You simply cannot be more central than this.
+            Chemin de la Barmète — arguably the most coveted address in
+            Verbier. You simply cannot be more central than this.
           </p>
+        </motion.div>
+
+        {/* Interactive Map Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="mb-16"
+        >
+          <div className="relative w-full aspect-[16/9] md:aspect-[21/9] rounded-lg overflow-hidden border border-alpine-700 shadow-2xl">
+            <MapComponent />
+
+            {/* Map Legend */}
+            <div className="absolute bottom-4 left-4 bg-alpine-900/90 backdrop-blur-sm p-3 rounded-lg border border-alpine-700 z-[1000]">
+              <div className="flex flex-wrap gap-3 text-xs text-white">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-3 h-3 rounded-full bg-gold-500" />
+                  <span>The Ambassador</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span>🎿</span>
+                  <span>Ski Lifts</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span>🍸</span>
+                  <span>Nightlife</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Open in Maps button */}
+            <a
+              href="https://maps.google.com/?q=Chemin+de+la+Barmète,+1936+Verbier,+Switzerland"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="absolute bottom-4 right-4 flex items-center gap-2 px-4 py-2 bg-white text-alpine-900 text-sm font-medium rounded shadow-lg hover:bg-gold-100 transition-colors z-[1000]"
+            >
+              <Navigation className="w-4 h-4" />
+              <span>Open in Maps</span>
+            </a>
+          </div>
         </motion.div>
 
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20">
@@ -116,8 +178,12 @@ export function Location() {
                 >
                   <item.icon className="w-6 h-6 text-gold-400 mb-3" />
                   <p className="text-white font-medium">{item.name}</p>
-                  <p className="text-gold-300 text-2xl font-serif mt-1">{item.distance}</p>
-                  <p className="text-alpine-400 text-xs mt-1">{item.description}</p>
+                  <p className="text-gold-300 text-2xl font-serif mt-1">
+                    {item.distance}
+                  </p>
+                  <p className="text-alpine-400 text-xs mt-1">
+                    {item.description}
+                  </p>
                 </motion.div>
               ))}
             </div>
@@ -142,18 +208,19 @@ export function Location() {
             </div>
           </motion.div>
 
-          {/* Right: Activities + Map */}
+          {/* Right: Activities */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             {/* Activities */}
-            <div className="grid grid-cols-2 gap-8 mb-10">
+            <div className="grid grid-cols-2 gap-8">
               {activities.map((activity) => (
                 <div key={activity.season}>
                   <h3 className="font-serif text-xl text-white mb-4">
-                    {activity.season === "Winter" ? "❄️" : "☀️"} {activity.season}
+                    {activity.season === "Winter" ? "❄️" : "☀️"}{" "}
+                    {activity.season}
                   </h3>
                   <ul className="space-y-2">
                     {activity.items.map((item) => (
@@ -170,26 +237,23 @@ export function Location() {
               ))}
             </div>
 
-            {/* Map Placeholder */}
-            <div className="aspect-video bg-alpine-800 border border-alpine-700 flex items-center justify-center relative overflow-hidden">
-              <div className="text-center p-8 relative z-10">
-                <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-gold-600/20 flex items-center justify-center">
-                  <MapPin className="w-7 h-7 text-gold-400" />
+            {/* Address Card */}
+            <div className="mt-10 p-6 bg-gradient-to-br from-gold-600/20 to-gold-600/5 border border-gold-500/30">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-gold-500/20 flex items-center justify-center flex-shrink-0">
+                  <MapPin className="w-6 h-6 text-gold-400" />
                 </div>
-                <h3 className="font-serif text-xl text-white mb-1">
-                  Chemin de la Barmète 17
-                </h3>
-                <p className="text-alpine-400 text-sm mb-4">
-                  1936 Verbier, Switzerland
-                </p>
-                <a
-                  href="https://maps.google.com/?q=Chemin+de+la+Barmète+17,+1936+Verbier,+Switzerland"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-gold-600 text-white text-sm font-medium tracking-wider uppercase hover:bg-gold-500 transition-colors"
-                >
-                  View on Map
-                </a>
+                <div>
+                  <h4 className="font-serif text-xl text-white mb-1">
+                    The Ambassador
+                  </h4>
+                  <p className="text-alpine-300 text-sm">
+                    Chemin de la Barmète
+                  </p>
+                  <p className="text-alpine-400 text-sm">
+                    1936 Verbier, Switzerland
+                  </p>
+                </div>
               </div>
             </div>
           </motion.div>

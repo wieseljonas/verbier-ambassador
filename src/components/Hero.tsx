@@ -7,11 +7,11 @@ import Image from "next/image";
 export function Hero() {
   return (
     <section className="relative h-screen min-h-[700px] flex items-center justify-center overflow-hidden">
-      {/* Background Image - Verbier village/mountains */}
+      {/* Background Image - Actual apartment terrace view */}
       <div className="absolute inset-0">
         <Image
-          src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=2940&auto=format&fit=crop"
-          alt="Verbier village in the Swiss Alps"
+          src="/images/apartment/view-mountains.avif"
+          alt="Stunning mountain view from The Ambassador apartment in Verbier"
           fill
           priority
           className="object-cover"
@@ -50,7 +50,8 @@ export function Hero() {
           transition={{ duration: 0.8, delay: 0.6 }}
           className="text-white/90 text-lg md:text-xl lg:text-2xl font-light max-w-3xl mx-auto mb-8"
         >
-          You can't get more central than this. Steps from Médran, Farinet & the legendary après-ski scene.
+          You can't get more central than this. Steps from Médran, Farinet & the
+          legendary après-ski scene.
         </motion.p>
 
         {/* Distance Pills */}
@@ -115,11 +116,11 @@ export function Hero() {
         transition={{ duration: 0.8, delay: 1 }}
         className="absolute bottom-8 right-8 hidden md:flex flex-col items-end gap-1 text-white/60 text-sm"
       >
-        <span>4 Bedrooms</span>
+        <span>3 Bedrooms</span>
         <span>•</span>
-        <span>8 Guests</span>
+        <span>9 Guests</span>
         <span>•</span>
-        <span>140m²</span>
+        <span>9 Beds</span>
       </motion.div>
     </section>
   );

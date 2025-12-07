@@ -1,6 +1,6 @@
 # 🏔️ The Ambassador - Verbier
 
-The most central luxury apartment in Verbier, Switzerland. 
+The most central luxury apartment in Verbier, Switzerland.
 
 **Chemin de la Barmète 17** — Steps from Médran, Farinet & the legendary après-ski scene.
 
@@ -18,12 +18,12 @@ The most central luxury apartment in Verbier, Switzerland.
 
 ## 📍 Location Highlights
 
-| Destination | Walking Time |
-|-------------|--------------|
-| 🎿 Médran Cable Car | 2 minutes |
-| 🍸 Farinet | 1 minute |
-| 🍺 Pub Mont Fort | 2 minutes |
-| 🛍️ Village Center | 1 minute |
+| Destination         | Walking Time |
+| ------------------- | ------------ |
+| 🎿 Médran Cable Car | 2 minutes    |
+| 🍸 Farinet          | 1 minute     |
+| 🍺 Pub Mont Fort    | 2 minutes    |
+| 🛍️ Village Center   | 1 minute     |
 
 ## 🚀 Getting Started
 

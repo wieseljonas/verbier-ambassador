@@ -5,7 +5,6 @@ import { Instagram, Facebook, Mail } from "lucide-react";
 
 const footerLinks = [
   { href: "#about", label: "The Apartment" },
-  { href: "#amenities", label: "Amenities" },
   { href: "#gallery", label: "Gallery" },
   { href: "#bedrooms", label: "Bedrooms" },
   { href: "#location", label: "Location" },
@@ -14,7 +13,7 @@ const footerLinks = [
 
 const socialLinks = [
   { icon: Instagram, href: "#", label: "Instagram" },
-  { icon: Mail, href: "mailto:stay@theambassador-verbier.ch", label: "Email" },
+  { icon: Mail, href: "mailto:jonas@realadvisor.com", label: "Email" },
 ];
 
 export function Footer() {
@@ -29,8 +28,8 @@ export function Footer() {
               The Ambassador
             </h3>
             <p className="text-alpine-400 leading-relaxed mb-6">
-              The most central 4-bedroom apartment in Verbier. Steps from Médran, 
-              Farinet, and the heart of the action.
+              The most central 3-bedroom apartment in Verbier. Steps from
+              Médran, Farinet, and the heart of the action.
             </p>
             {/* Social Links */}
             <div className="flex items-center gap-4">
@@ -72,16 +71,8 @@ export function Footer() {
               Contact
             </h4>
             <address className="not-italic text-alpine-300 space-y-3">
-              <p>Chemin de la Barmète 17</p>
+              <p>Chemin de la Barmète</p>
               <p>1936 Verbier, Switzerland</p>
-              <p className="pt-2">
-                <a
-                  href="mailto:stay@theambassador-verbier.ch"
-                  className="hover:text-white transition-colors"
-                >
-                  stay@theambassador-verbier.ch
-                </a>
-              </p>
             </address>
           </div>
         </div>
@@ -91,7 +82,8 @@ export function Footer() {
       <div className="border-t border-alpine-800">
         <div className="container-wide px-6 md:px-12 lg:px-20 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-alpine-500 text-sm">
-            © {new Date().getFullYear()} The Ambassador Verbier. All rights reserved.
+            © {new Date().getFullYear()} The Ambassador Verbier. All rights
+            reserved.
           </p>
           <div className="flex items-center gap-6 text-alpine-500 text-sm">
             <a href="#" className="hover:text-white transition-colors">
@@ -106,4 +98,3 @@ export function Footer() {
     </footer>
   );
 }
-

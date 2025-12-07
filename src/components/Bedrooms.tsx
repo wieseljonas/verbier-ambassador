@@ -8,39 +8,35 @@ import { Bed, Users, Bath } from "lucide-react";
 
 const bedrooms = [
   {
-    name: "Master Suite",
-    image:
-      "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?q=80&w=2880&auto=format&fit=crop",
-    bedType: "King Bed",
-    guests: 2,
-    features: ["En-suite bathroom", "Mountain view", "Walk-in closet", "Balcony access"],
-    hasEnsuite: true,
-  },
-  {
-    name: "Alpine Suite",
-    image:
-      "https://images.unsplash.com/photo-1617325247661-675ab4b64ae2?q=80&w=2942&auto=format&fit=crop",
-    bedType: "Queen Bed",
-    guests: 2,
-    features: ["En-suite bathroom", "Forest view", "Smart TV"],
-    hasEnsuite: true,
-  },
-  {
-    name: "Twin Room",
-    image:
-      "https://images.unsplash.com/photo-1618773928121-c32242e63f39?q=80&w=2940&auto=format&fit=crop",
-    bedType: "2 Single Beds",
-    guests: 2,
-    features: ["Shared bathroom", "Mountain view", "Desk area"],
+    name: "Kids Room",
+    image: "/images/apartment/kids-room.avif",
+    bedType: "1 Single + 1 Bunk Bed",
+    guests: 3,
+    features: ["Mountain view", "Spacious", "Perfect for kids or friends"],
     hasEnsuite: false,
   },
   {
-    name: "Cozy Room",
-    image:
-      "https://images.unsplash.com/photo-1615874959474-d609969a20ed?q=80&w=2880&auto=format&fit=crop",
+    name: "Master Suite",
+    image: "/images/apartment/master-room.avif",
     bedType: "Queen Bed",
     guests: 2,
-    features: ["Shared bathroom", "Garden view", "Reading nook"],
+    features: ["Premium linens", "Elegant design", "Blackout curtains"],
+    hasEnsuite: false,
+  },
+  {
+    name: "Double Room",
+    image: "/images/apartment/living-room-2.avif",
+    bedType: "Double Bed",
+    guests: 2,
+    features: ["Cozy atmosphere", "Natural light", "Quality bedding"],
+    hasEnsuite: false,
+  },
+  {
+    name: "Sofa Bed",
+    image: "/images/apartment/living-room.avif",
+    bedType: "Double Sofa Bed",
+    guests: 2,
+    features: ["Panoramic views", "Open living space", "Extra flexibility"],
     hasEnsuite: false,
   },
 ];
@@ -66,13 +62,14 @@ export function Bedrooms() {
             The <span className="italic font-light">Bedrooms</span>
           </h2>
           <p className="mt-6 text-alpine-600 max-w-2xl mx-auto">
-            Four beautifully appointed bedrooms, each designed as a peaceful haven
-            with premium linens, blackout curtains, and thoughtful touches.
+            Three beautifully appointed bedrooms plus a double sofa bed in the
+            living room—9 beds in total for ultimate flexibility. Perfect for
+            families or groups up to 9 guests.
           </p>
         </motion.div>
 
         {/* Bedrooms Grid */}
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {bedrooms.map((bedroom, index) => (
             <motion.div
               key={bedroom.name}
@@ -88,7 +85,7 @@ export function Bedrooms() {
                   alt={bedroom.name}
                   fill
                   className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 50vw"
+                  sizes="(max-width: 768px) 100vw, 33vw"
                 />
               </div>
 
@@ -131,8 +128,22 @@ export function Bedrooms() {
             </motion.div>
           ))}
         </div>
+
+        {/* Additional Info */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 0.5 }}
+          className="mt-12 text-center"
+        >
+          <div className="inline-flex items-center gap-4 bg-white border border-alpine-200 px-6 py-4 text-alpine-700">
+            <Bath className="w-5 h-5 text-gold-600" />
+            <span>
+              <strong>2 Bathrooms</strong> — Modern fixtures, bathtub & shower
+            </span>
+          </div>
+        </motion.div>
       </div>
     </section>
   );
 }
-

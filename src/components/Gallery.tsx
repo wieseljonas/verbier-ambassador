@@ -9,34 +9,54 @@ import { X, ChevronLeft, ChevronRight } from "lucide-react";
 
 const galleryImages = [
   {
-    src: "https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=2787&auto=format&fit=crop",
-    alt: "Luxurious living room with mountain views",
+    src: "/images/apartment/living-room.avif",
+    alt: "Spacious living room with panoramic mountain views",
     span: "col-span-2 row-span-2",
   },
   {
-    src: "https://images.unsplash.com/photo-1600121848594-d8644e57abab?q=80&w=2940&auto=format&fit=crop",
-    alt: "Modern kitchen with premium finishes",
+    src: "/images/apartment/kitchen.avif",
+    alt: "Brand new fully equipped kitchen",
     span: "col-span-1 row-span-1",
   },
   {
-    src: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?q=80&w=2874&auto=format&fit=crop",
-    alt: "Elegant dining area",
+    src: "/images/apartment/master-room.avif",
+    alt: "Master bedroom with queen bed",
     span: "col-span-1 row-span-1",
   },
   {
-    src: "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?q=80&w=2880&auto=format&fit=crop",
-    alt: "Master bedroom with cozy bedding",
+    src: "/images/apartment/living-room-2.avif",
+    alt: "Cozy living room angle",
     span: "col-span-1 row-span-1",
   },
   {
-    src: "https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?q=80&w=2787&auto=format&fit=crop",
-    alt: "Spa-like bathroom",
+    src: "/images/apartment/bathroom.avif",
+    alt: "Modern bathroom with bathtub",
     span: "col-span-1 row-span-1",
   },
   {
-    src: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2940&auto=format&fit=crop",
-    alt: "Stunning alpine mountain views",
+    src: "/images/apartment/view-mountains.avif",
+    alt: "Stunning terrace with breathtaking alpine views",
     span: "col-span-2 row-span-1",
+  },
+  {
+    src: "/images/apartment/back-view.jpeg",
+    alt: "View of Verbier village from the terrace",
+    span: "col-span-1 row-span-1",
+  },
+  {
+    src: "/images/apartment/kids-room.avif",
+    alt: "Kids room with bunk bed and single bed",
+    span: "col-span-1 row-span-1",
+  },
+  {
+    src: "/images/apartment/shower-room.avif",
+    alt: "Second bathroom with shower",
+    span: "col-span-1 row-span-1",
+  },
+  {
+    src: "/images/apartment/living-room-open-kitchen.avif",
+    alt: "Open living area with kitchen",
+    span: "col-span-1 row-span-1",
   },
 ];
 
@@ -167,4 +187,3 @@ export function Gallery() {
     </section>
   );
 }
-

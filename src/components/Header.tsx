@@ -6,7 +6,6 @@ import { Menu, X } from "lucide-react";
 
 const navLinks = [
   { href: "#about", label: "The Apartment" },
-  { href: "#amenities", label: "Amenities" },
   { href: "#gallery", label: "Gallery" },
   { href: "#bedrooms", label: "Bedrooms" },
   { href: "#location", label: "Location" },
@@ -121,4 +120,3 @@ export function Header() {
     </>
   );
 }
-

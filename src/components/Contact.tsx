@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
-import { Send, Mail, MapPin, Check, ExternalLink } from "lucide-react";
+import { Send, MapPin, Check, ExternalLink } from "lucide-react";
 
 export function Contact() {
   const ref = useRef(null);
@@ -19,15 +19,28 @@ export function Contact() {
     message: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically send the form data to your backend
-    console.log("Form submitted:", formData);
+    
+    // Send email via mailto (opens user's email client with pre-filled data)
+    const subject = encodeURIComponent(`Booking Inquiry - The Ambassador Verbier`);
+    const body = encodeURIComponent(
+      `Name: ${formData.name}\n` +
+      `Email: ${formData.email}\n` +
+      `Phone: ${formData.phone || 'Not provided'}\n` +
+      `Guests: ${formData.guests}\n` +
+      `Preferred Dates: ${formData.dates}\n\n` +
+      `Message:\n${formData.message || 'No additional message'}`
+    );
+    
+    window.location.href = `mailto:jonas@realadvisor.com?subject=${subject}&body=${body}`;
     setIsSubmitted(true);
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -51,9 +64,9 @@ export function Contact() {
               <span className="italic font-light">Perfect Stay</span>
             </h2>
             <p className="text-alpine-600 leading-relaxed mb-8">
-              The Ambassador is one of the most sought-after locations in Verbier. 
-              Contact us directly for the best rates and personalized service, or 
-              book instantly through Airbnb.
+              The Ambassador is one of the most sought-after locations in
+              Verbier. Contact us directly for the best rates and personalized
+              service, or book instantly through Airbnb.
             </p>
 
             {/* Airbnb CTA */}
@@ -64,7 +77,7 @@ export function Contact() {
               className="inline-flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-[#FF5A5F] to-[#FF385C] text-white font-medium tracking-wider uppercase text-sm hover:opacity-90 transition-opacity mb-10"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm5.5 17.4c-.3.6-1.1 1.1-2.1 1.1-1.5 0-2.5-1-3.4-2.2-.9 1.2-1.9 2.2-3.4 2.2-1 0-1.8-.5-2.1-1.1-.4-.8-.3-1.8.3-3.1l2.9-6.1c.2-.4.5-.6.9-.6s.7.2.9.6l2.9 6.1c.6 1.3.7 2.3.1 3.1z"/>
+                <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm5.5 17.4c-.3.6-1.1 1.1-2.1 1.1-1.5 0-2.5-1-3.4-2.2-.9 1.2-1.9 2.2-3.4 2.2-1 0-1.8-.5-2.1-1.1-.4-.8-.3-1.8.3-3.1l2.9-6.1c.2-.4.5-.6.9-.6s.7.2.9.6l2.9 6.1c.6 1.3.7 2.3.1 3.1z" />
               </svg>
               Book on Airbnb
               <ExternalLink className="w-4 h-4" />
@@ -74,27 +87,12 @@ export function Contact() {
             <div className="space-y-6">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-alpine-100 flex items-center justify-center">
-                  <Mail className="w-5 h-5 text-gold-600" />
-                </div>
-                <div>
-                  <p className="text-alpine-500 text-sm">Direct Inquiries</p>
-                  <a
-                    href="mailto:stay@theambassador-verbier.ch"
-                    className="text-alpine-900 hover:text-gold-600 transition-colors"
-                  >
-                    stay@theambassador-verbier.ch
-                  </a>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-alpine-100 flex items-center justify-center">
                   <MapPin className="w-5 h-5 text-gold-600" />
                 </div>
                 <div>
                   <p className="text-alpine-500 text-sm">Address</p>
                   <p className="text-alpine-900">
-                    Chemin de la Barmète 17
+                    Chemin de la Barmète
                     <br />
                     1936 Verbier, Switzerland
                   </p>
@@ -119,7 +117,8 @@ export function Contact() {
                     Thank You!
                   </h3>
                   <p className="text-alpine-600">
-                    We've received your inquiry and will respond within 24 hours.
+                    We've received your inquiry and will respond within 24
+                    hours.
                   </p>
                 </div>
               </div>
