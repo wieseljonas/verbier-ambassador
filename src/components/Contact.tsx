@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
-import { Send, MapPin, Check, ExternalLink } from "lucide-react";
+import { Send, MapPin, Check, ExternalLink, Calendar } from "lucide-react";
 
 export function Contact() {
   const ref = useRef(null);
@@ -14,22 +14,35 @@ export function Contact() {
     name: "",
     email: "",
     phone: "",
-    dates: "",
+    checkIn: "",
+    checkOut: "",
     guests: "",
     message: "",
   });
+
+  // Format date for display
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Send email via mailto (opens user's email client with pre-filled data)
     const subject = encodeURIComponent(`Booking Inquiry - The Ambassador Verbier`);
+    const dateRange = `${formatDate(formData.checkIn)} → ${formatDate(formData.checkOut)}`;
     const body = encodeURIComponent(
       `Name: ${formData.name}\n` +
       `Email: ${formData.email}\n` +
       `Phone: ${formData.phone || 'Not provided'}\n` +
       `Guests: ${formData.guests}\n` +
-      `Preferred Dates: ${formData.dates}\n\n` +
+      `Dates: ${dateRange}\n\n` +
       `Message:\n${formData.message || 'No additional message'}`
     );
     
@@ -212,22 +225,48 @@ export function Contact() {
                 </div>
 
                 <div className="mb-6">
-                  <label
-                    htmlFor="dates"
-                    className="block text-alpine-700 text-sm mb-2"
-                  >
+                  <label className="block text-alpine-700 text-sm mb-2">
+                    <Calendar className="w-4 h-4 inline mr-1" />
                     Preferred Dates *
                   </label>
-                  <input
-                    type="text"
-                    id="dates"
-                    name="dates"
-                    required
-                    value={formData.dates}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-alpine-200 bg-alpine-50 text-alpine-900 focus:outline-none focus:border-gold-400 transition-colors"
-                    placeholder="e.g., Feb 15-22, 2025"
-                  />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label
+                        htmlFor="checkIn"
+                        className="block text-alpine-500 text-xs mb-1"
+                      >
+                        Check-in
+                      </label>
+                      <input
+                        type="date"
+                        id="checkIn"
+                        name="checkIn"
+                        required
+                        min={new Date().toISOString().split("T")[0]}
+                        value={formData.checkIn}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 border border-alpine-200 bg-alpine-50 text-alpine-900 focus:outline-none focus:border-gold-400 transition-colors"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="checkOut"
+                        className="block text-alpine-500 text-xs mb-1"
+                      >
+                        Check-out
+                      </label>
+                      <input
+                        type="date"
+                        id="checkOut"
+                        name="checkOut"
+                        required
+                        min={formData.checkIn || new Date().toISOString().split("T")[0]}
+                        value={formData.checkOut}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 border border-alpine-200 bg-alpine-50 text-alpine-900 focus:outline-none focus:border-gold-400 transition-colors"
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div className="mb-8">
