@@ -110,8 +110,8 @@ export function Location() {
             <span className="italic font-light">Walking Distance</span>
           </h2>
           <p className="text-alpine-300 max-w-2xl mx-auto">
-            Chemin de la Barmète — arguably the most coveted address in
-            Verbier. You simply cannot be more central than this.
+            Chemin de la Barmète — arguably the most coveted address in Verbier.
+            You simply cannot be more central than this.
           </p>
         </motion.div>
 
@@ -122,11 +122,11 @@ export function Location() {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="mb-16"
         >
-          <div className="relative w-full aspect-[16/9] md:aspect-[21/9] rounded-lg overflow-hidden border border-alpine-700 shadow-2xl">
+          <div className="relative w-full aspect-[16/9] md:aspect-[21/9] rounded-3xl overflow-hidden border border-alpine-700 shadow-2xl">
             <MapComponent />
 
             {/* Map Legend */}
-            <div className="absolute bottom-4 left-4 bg-alpine-900/90 backdrop-blur-sm p-3 rounded-lg border border-alpine-700 z-[1000]">
+            <div className="absolute bottom-4 left-4 bg-alpine-900/90 backdrop-blur-md p-4 rounded-2xl border border-alpine-700 z-[1000]">
               <div className="flex flex-wrap gap-3 text-xs text-white">
                 <div className="flex items-center gap-1.5">
                   <span className="w-3 h-3 rounded-full bg-gold-500" />
@@ -143,12 +143,12 @@ export function Location() {
               </div>
             </div>
 
-            {/* Open in Maps button */}
+            {/* Open in Maps button - Glass Style */}
             <a
               href="https://maps.google.com/?q=Chemin+de+la+Barmète,+1936+Verbier,+Switzerland"
               target="_blank"
               rel="noopener noreferrer"
-              className="absolute bottom-4 right-4 flex items-center gap-2 px-4 py-2 bg-white text-alpine-900 text-sm font-medium rounded shadow-lg hover:bg-gold-100 transition-colors z-[1000]"
+              className="absolute bottom-4 right-4 flex items-center gap-2 px-5 py-2.5 bg-white/90 backdrop-blur-md text-alpine-900 text-sm font-medium rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,1)] hover:bg-white hover:shadow-[0_8px_30px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,1)] transition-all duration-300 z-[1000]"
             >
               <Navigation className="w-4 h-4" />
               <span>Open in Maps</span>
@@ -174,7 +174,7 @@ export function Location() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={isInView ? { opacity: 1, y: 0 } : {}}
                   transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
-                  className="p-5 bg-gradient-to-br from-gold-600/20 to-gold-600/5 border border-gold-500/30 hover:border-gold-400/50 transition-colors"
+                  className="p-5 bg-gradient-to-br from-gold-600/20 to-gold-600/5 border border-gold-500/30 hover:border-gold-400/50 rounded-2xl transition-all duration-300"
                 >
                   <item.icon className="w-6 h-6 text-gold-400 mb-3" />
                   <p className="text-white font-medium">{item.name}</p>
@@ -196,7 +196,7 @@ export function Location() {
               {travelDistances.map((item) => (
                 <div
                   key={item.name}
-                  className="flex items-center gap-3 p-3 bg-alpine-800/50 border border-alpine-700 flex-1"
+                  className="flex items-center gap-3 p-3 bg-alpine-800/50 border border-alpine-700 rounded-xl flex-1"
                 >
                   <item.icon className="w-5 h-5 text-alpine-400" />
                   <div>

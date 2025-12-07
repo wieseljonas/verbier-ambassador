@@ -25,7 +25,7 @@ const bedrooms = [
   },
   {
     name: "Double Room",
-    image: "/images/apartment/living-room-2.avif",
+    image: "/images/apartment/living-room.avif",
     bedType: "Double Bed",
     guests: 2,
     features: ["Cozy atmosphere", "Natural light", "Quality bedding"],
@@ -33,7 +33,7 @@ const bedrooms = [
   },
   {
     name: "Sofa Bed",
-    image: "/images/apartment/living-room.avif",
+    image: "/images/apartment/living-room-2.avif",
     bedType: "Double Sofa Bed",
     guests: 2,
     features: ["Panoramic views", "Open living space", "Extra flexibility"],
@@ -46,7 +46,11 @@ export function Bedrooms() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section id="bedrooms" ref={ref} className="section-padding bg-alpine-100/50">
+    <section
+      id="bedrooms"
+      ref={ref}
+      className="section-padding bg-alpine-100/50"
+    >
       <div className="container-wide">
         {/* Header */}
         <motion.div
@@ -76,7 +80,7 @@ export function Bedrooms() {
               initial={{ opacity: 0, y: 30 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: index * 0.15 }}
-              className="group bg-white border border-alpine-200 overflow-hidden"
+              className="group bg-white border border-alpine-200 rounded-3xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300"
             >
               {/* Image */}
               <div className="relative aspect-[16/10] image-hover">
@@ -136,7 +140,7 @@ export function Bedrooms() {
           transition={{ duration: 0.6, delay: 0.5 }}
           className="mt-12 text-center"
         >
-          <div className="inline-flex items-center gap-4 bg-white border border-alpine-200 px-6 py-4 text-alpine-700">
+          <div className="inline-flex items-center gap-4 bg-white border border-alpine-200 px-6 py-4 rounded-2xl text-alpine-700 shadow-sm">
             <Bath className="w-5 h-5 text-gold-600" />
             <span>
               <strong>2 Bathrooms</strong> — Modern fixtures, bathtub & shower

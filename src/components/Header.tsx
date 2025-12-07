@@ -32,7 +32,7 @@ export function Header() {
         transition={{ duration: 0.8, ease: "easeOut" }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           isScrolled
-            ? "bg-alpine-50/95 backdrop-blur-md shadow-sm py-4"
+            ? "bg-white/70 backdrop-blur-2xl shadow-[0_4px_30px_rgba(0,0,0,0.05),inset_0_-1px_0_rgba(255,255,255,0.5)] border-b border-white/50 py-4"
             : "bg-transparent py-6"
         }`}
       >

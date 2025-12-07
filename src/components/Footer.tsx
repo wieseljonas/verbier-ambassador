@@ -31,14 +31,14 @@ export function Footer() {
               The most central 3-bedroom apartment in Verbier. Steps from
               Médran, Farinet, and the heart of the action.
             </p>
-            {/* Social Links */}
-            <div className="flex items-center gap-4">
+            {/* Social Links - Glass Style */}
+            <div className="flex items-center gap-3">
               {socialLinks.map((social) => (
                 <a
                   key={social.label}
                   href={social.href}
                   aria-label={social.label}
-                  className="w-10 h-10 bg-alpine-800 hover:bg-gold-600 flex items-center justify-center transition-colors"
+                  className="w-11 h-11 bg-white/10 backdrop-blur-sm border border-white/10 rounded-xl flex items-center justify-center hover:bg-gold-500/90 hover:border-gold-500/50 transition-all duration-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
                 >
                   <social.icon className="w-5 h-5" />
                 </a>

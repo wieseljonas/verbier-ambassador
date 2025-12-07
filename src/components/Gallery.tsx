@@ -103,7 +103,7 @@ export function Gallery() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={isInView ? { opacity: 1, scale: 1 } : {}}
               transition={{ duration: 0.6, delay: index * 0.1 }}
-              className={`relative image-hover cursor-pointer ${image.span}`}
+              className={`relative image-hover cursor-pointer rounded-2xl overflow-hidden ${image.span}`}
               onClick={() => setSelectedImage(index)}
             >
               <Image
@@ -129,33 +129,33 @@ export function Gallery() {
             className="fixed inset-0 z-50 bg-alpine-950/95 flex items-center justify-center p-4"
             onClick={() => setSelectedImage(null)}
           >
-            {/* Close Button */}
+            {/* Close Button - Glass Style */}
             <button
-              className="absolute top-6 right-6 text-white/70 hover:text-white transition-colors"
+              className="absolute top-6 right-6 w-12 h-12 bg-white/10 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center text-white/80 hover:bg-white/20 hover:text-white transition-all duration-300"
               onClick={() => setSelectedImage(null)}
             >
-              <X className="w-8 h-8" />
+              <X className="w-6 h-6" />
             </button>
 
-            {/* Navigation */}
+            {/* Navigation - Glass Style */}
             <button
-              className="absolute left-4 md:left-8 text-white/70 hover:text-white transition-colors"
+              className="absolute left-4 md:left-8 w-14 h-14 bg-white/10 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center text-white/80 hover:bg-white/20 hover:text-white transition-all duration-300"
               onClick={(e) => {
                 e.stopPropagation();
                 handlePrev();
               }}
             >
-              <ChevronLeft className="w-10 h-10" />
+              <ChevronLeft className="w-8 h-8" />
             </button>
 
             <button
-              className="absolute right-4 md:right-8 text-white/70 hover:text-white transition-colors"
+              className="absolute right-4 md:right-8 w-14 h-14 bg-white/10 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center text-white/80 hover:bg-white/20 hover:text-white transition-all duration-300"
               onClick={(e) => {
                 e.stopPropagation();
                 handleNext();
               }}
             >
-              <ChevronRight className="w-10 h-10" />
+              <ChevronRight className="w-8 h-8" />
             </button>
 
             {/* Image */}

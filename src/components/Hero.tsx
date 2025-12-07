@@ -54,24 +54,25 @@ export function Hero() {
           legendary après-ski scene.
         </motion.p>
 
-        {/* Distance Pills */}
+        {/* Distance Pills - Glass Style */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.7 }}
           className="flex flex-wrap items-center justify-center gap-3 mb-10"
         >
-          <span className="px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white text-sm">
+          <span className="px-5 py-2.5 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
             🎿 2 min to Médran
           </span>
-          <span className="px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white text-sm">
+          <span className="px-5 py-2.5 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
             🍸 1 min to Farinet
           </span>
-          <span className="px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white text-sm">
+          <span className="px-5 py-2.5 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
             🍺 2 min to Pub Mont Fort
           </span>
         </motion.div>
 
+        {/* CTA Buttons - Liquid Glass Style */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -80,13 +81,13 @@ export function Hero() {
         >
           <a
             href="#contact"
-            className="px-8 py-4 bg-white text-alpine-900 font-medium tracking-wider uppercase text-sm hover:bg-gold-100 transition-colors duration-300"
+            className="group px-8 py-4 bg-white/95 backdrop-blur-sm text-alpine-900 font-medium tracking-wide text-sm rounded-2xl shadow-[0_8px_32px_rgba(255,255,255,0.3),inset_0_1px_0_rgba(255,255,255,1)] hover:shadow-[0_12px_40px_rgba(255,255,255,0.4),inset_0_1px_0_rgba(255,255,255,1)] hover:bg-white transition-all duration-300"
           >
             Book Your Stay
           </a>
           <a
             href="#gallery"
-            className="px-8 py-4 border border-white/40 text-white font-medium tracking-wider uppercase text-sm hover:bg-white/10 transition-colors duration-300"
+            className="px-8 py-4 bg-white/10 backdrop-blur-md border border-white/30 text-white font-medium tracking-wide text-sm rounded-2xl shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-white/20 hover:border-white/40 transition-all duration-300"
           >
             View Gallery
           </a>

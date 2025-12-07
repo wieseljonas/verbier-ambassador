@@ -73,7 +73,10 @@ export function Contact() {
   };
 
   const inputClasses =
-    "w-full px-4 py-3.5 bg-white/60 backdrop-blur-sm border border-alpine-200/60 rounded-2xl text-alpine-900 placeholder:text-alpine-400 focus:outline-none focus:bg-white/80 focus:border-gold-400/60 focus:ring-4 focus:ring-gold-400/10 transition-all duration-300";
+    "w-full px-4 py-3.5 bg-white/80 backdrop-blur-md border border-white/60 rounded-2xl text-alpine-900 placeholder:text-alpine-400 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.8),0_2px_8px_rgba(0,0,0,0.04)] focus:outline-none focus:bg-white focus:border-gold-400/50 focus:shadow-[inset_0_0_0_1px_rgba(212,168,83,0.3),0_0_0_4px_rgba(212,168,83,0.1)] transition-all duration-300";
+
+  const glassCardClasses =
+    "bg-white/70 backdrop-blur-2xl border border-white/50 shadow-[0_8px_32px_rgba(0,0,0,0.08),inset_0_0_0_1px_rgba(255,255,255,0.9)]";
 
   return (
     <section
@@ -81,10 +84,11 @@ export function Contact() {
       ref={ref}
       className="section-padding relative overflow-hidden"
     >
-      {/* Luxury gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-alpine-50 via-white to-gold-50/30" />
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gold-200/20 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-alpine-200/30 rounded-full blur-3xl" />
+      {/* Luxury gradient background with visible orbs */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-amber-50/50" />
+      <div className="absolute -top-32 -right-32 w-[700px] h-[700px] bg-gradient-to-br from-amber-200/40 to-orange-200/30 rounded-full blur-3xl" />
+      <div className="absolute -bottom-32 -left-32 w-[500px] h-[500px] bg-gradient-to-tr from-slate-200/50 to-blue-200/30 rounded-full blur-3xl" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-radial from-white/80 to-transparent rounded-full" />
 
       <div className="container-wide relative">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
@@ -115,20 +119,25 @@ export function Contact() {
               service.
             </p>
 
-            {/* Airbnb CTA - Glass Style */}
+            {/* Airbnb CTA - Liquid Glass Style */}
             <motion.a
               href="https://www.airbnb.ch/rooms/54289819"
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-[#FF5A5F] to-[#FF385C] text-white font-medium tracking-wide text-sm rounded-2xl shadow-lg shadow-[#FF5A5F]/25 hover:shadow-xl hover:shadow-[#FF5A5F]/30 transition-all duration-300 mb-12"
+              className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-b from-[#FF5A5F] to-[#E84850] text-white font-medium tracking-wide text-sm rounded-2xl shadow-[0_10px_40px_-10px_rgba(255,90,95,0.5),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_14px_50px_-10px_rgba(255,90,95,0.6),inset_0_1px_0_rgba(255,255,255,0.25)] transition-all duration-300 mb-12 relative overflow-hidden"
             >
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+              <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/5 to-white/10 pointer-events-none" />
+              <svg
+                className="w-5 h-5 relative z-10"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
                 <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm5.5 17.4c-.3.6-1.1 1.1-2.1 1.1-1.5 0-2.5-1-3.4-2.2-.9 1.2-1.9 2.2-3.4 2.2-1 0-1.8-.5-2.1-1.1-.4-.8-.3-1.8.3-3.1l2.9-6.1c.2-.4.5-.6.9-.6s.7.2.9.6l2.9 6.1c.6 1.3.7 2.3.1 3.1z" />
               </svg>
-              Book on Airbnb
-              <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+              <span className="relative z-10">Book on Airbnb</span>
+              <ExternalLink className="w-4 h-4 relative z-10 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
             </motion.a>
 
             {/* Address Card - Glass */}
@@ -136,7 +145,7 @@ export function Contact() {
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: 0.4, duration: 0.6 }}
-              className="glass rounded-3xl p-6 inline-flex items-center gap-5"
+              className={`${glassCardClasses} rounded-3xl p-6 inline-flex items-center gap-5`}
             >
               <div className="w-14 h-14 bg-gradient-to-br from-gold-400 to-gold-500 rounded-2xl flex items-center justify-center shadow-lg shadow-gold-400/20">
                 <MapPin className="w-6 h-6 text-white" />
@@ -163,7 +172,7 @@ export function Contact() {
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="glass rounded-[2rem] p-12 text-center"
+                className={`${glassCardClasses} rounded-[2rem] p-12 text-center`}
               >
                 <motion.div
                   initial={{ scale: 0 }}
@@ -187,7 +196,7 @@ export function Contact() {
             ) : (
               <form
                 onSubmit={handleSubmit}
-                className="glass rounded-[2rem] p-8 md:p-10"
+                className={`${glassCardClasses} rounded-[2rem] p-8 md:p-10`}
               >
                 <h3 className="font-serif text-2xl text-alpine-900 mb-2">
                   Send an Inquiry
@@ -313,15 +322,16 @@ export function Contact() {
                     />
                   </div>
 
-                  {/* Submit Button */}
+                  {/* Submit Button - Liquid Glass Style */}
                   <motion.button
                     type="submit"
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.99 }}
-                    className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-alpine-900 to-alpine-800 text-white font-medium tracking-wide rounded-2xl shadow-lg shadow-alpine-900/20 hover:shadow-xl hover:shadow-alpine-900/25 transition-all duration-300 group"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-b from-alpine-800 to-alpine-900 text-white font-medium tracking-wide rounded-2xl shadow-[0_10px_40px_-10px_rgba(26,46,53,0.5),inset_0_1px_0_rgba(255,255,255,0.1)] hover:shadow-[0_14px_50px_-10px_rgba(26,46,53,0.6),inset_0_1px_0_rgba(255,255,255,0.15)] transition-all duration-300 group relative overflow-hidden"
                   >
-                    <Send className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                    Send Inquiry
+                    <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/5 to-white/10 pointer-events-none" />
+                    <Send className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform relative z-10" />
+                    <span className="relative z-10">Send Inquiry</span>
                   </motion.button>
                 </div>
               </form>
