@@ -29,16 +29,12 @@ const createCustomIcon = (emoji: string, isMain: boolean = false) => {
 };
 
 // Create a label for POI names at the marker (legend style)
-const createNameLabel = (name: string, emoji: string) => {
+const createNameLabel = (name: string) => {
   return L.divIcon({
     className: "name-label-marker",
-    html: `
-      <div class="name-label">
-        ${emoji} ${name}
-      </div>
-    `,
-    iconSize: [140, 28],
-    iconAnchor: [70, -6],
+    html: `<div class="name-label">${name}</div>`,
+    iconSize: [0, 0],
+    iconAnchor: [0, -22],
   });
 };
 
@@ -162,17 +158,20 @@ export default function MapComponent() {
         .name-label-marker {
           background: transparent !important;
           border: none !important;
+          overflow: visible !important;
         }
 
         .name-label {
           background: rgba(55, 65, 60, 0.9);
           color: white;
-          padding: 5px 12px;
+          padding: 4px 10px;
           border-radius: 6px;
-          font-size: 13px;
+          font-size: 12px;
           font-weight: 500;
           white-space: nowrap;
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+          transform: translateX(-50%);
+          display: inline-block;
         }
 
         .pulse-ring {
@@ -287,7 +286,7 @@ export default function MapComponent() {
             <Marker
               key={`name-${poi.name}`}
               position={[poi.lat, poi.lng]}
-              icon={createNameLabel(poi.name, poi.emoji)}
+              icon={createNameLabel(poi.name)}
               interactive={false}
             />
           ))}
