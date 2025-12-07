@@ -13,23 +13,33 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
 // Fix for default marker icons in Leaflet with webpack/next.js
-const createCustomIcon = (
-  emoji: string,
-  isMain: boolean = false,
-  walkingTime?: string
-) => {
+const createCustomIcon = (emoji: string, isMain: boolean = false) => {
   return L.divIcon({
     className: "custom-marker",
     html: `
       <div class="marker-container ${isMain ? "main-marker" : "poi-marker"}">
         <span class="marker-emoji">${emoji}</span>
         ${isMain ? '<div class="pulse-ring"></div>' : ""}
-        ${walkingTime ? `<div class="walking-time-badge">${walkingTime}</div>` : ""}
       </div>
     `,
     iconSize: [isMain ? 48 : 36, isMain ? 48 : 36],
     iconAnchor: [isMain ? 24 : 18, isMain ? 24 : 18],
     popupAnchor: [0, isMain ? -28 : -22],
+  });
+};
+
+// Create a label icon for path labels
+const createPathLabel = (name: string, walkingTime: string) => {
+  return L.divIcon({
+    className: "path-label-marker",
+    html: `
+      <div class="path-label">
+        <span class="path-label-name">${name}</span>
+        <span class="path-label-time">🚶 ${walkingTime}</span>
+      </div>
+    `,
+    iconSize: [120, 40],
+    iconAnchor: [60, 20],
   });
 };
 
@@ -150,20 +160,36 @@ export default function MapComponent() {
           line-height: 1;
         }
 
-        .walking-time-badge {
-          position: absolute;
-          bottom: -8px;
-          left: 50%;
-          transform: translateX(-50%);
-          background: linear-gradient(135deg, #d4a853 0%, #b8942f 100%);
+        .path-label-marker {
+          background: transparent !important;
+          border: none !important;
+        }
+
+        .path-label {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          background: rgba(26, 46, 53, 0.95);
           color: white;
-          font-size: 10px;
-          font-weight: 700;
-          padding: 2px 6px;
-          border-radius: 10px;
+          padding: 6px 12px;
+          border-radius: 8px;
+          box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+          border: 2px solid #d4a853;
           white-space: nowrap;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-          border: 1.5px solid white;
+        }
+
+        .path-label-name {
+          font-size: 11px;
+          font-weight: 600;
+          color: white;
+        }
+
+        .path-label-time {
+          font-size: 12px;
+          font-weight: 700;
+          color: #d4a853;
+          margin-top: 2px;
         }
 
         .pulse-ring {
@@ -240,7 +266,22 @@ export default function MapComponent() {
 
         <SetBoundsComponent />
 
-        {/* Draw dashed lines from Ambassador to each POI */}
+        {/* Draw background lines for visibility */}
+        {pois
+          .filter((poi) => !poi.isMain)
+          .map((poi) => (
+            <Polyline
+              key={`bg-line-${poi.name}`}
+              positions={[ambassadorCoords, [poi.lat, poi.lng]]}
+              pathOptions={{
+                color: "white",
+                weight: 5,
+                opacity: 0.8,
+              }}
+            />
+          ))}
+
+        {/* Draw main colored dashed lines */}
         {pois
           .filter((poi) => !poi.isMain)
           .map((poi) => (
@@ -249,18 +290,34 @@ export default function MapComponent() {
               positions={[ambassadorCoords, [poi.lat, poi.lng]]}
               pathOptions={{
                 color: "#d4a853",
-                weight: 2,
-                opacity: 0.6,
-                dashArray: "6, 8",
+                weight: 3,
+                opacity: 1,
+                dashArray: "8, 6",
               }}
             />
           ))}
+
+        {/* Labels at midpoints */}
+        {pois
+          .filter((poi) => !poi.isMain && poi.walkingTime)
+          .map((poi) => {
+            const midLat = (ambassadorCoords[0] + poi.lat) / 2;
+            const midLng = (ambassadorCoords[1] + poi.lng) / 2;
+            return (
+              <Marker
+                key={`label-${poi.name}`}
+                position={[midLat, midLng]}
+                icon={createPathLabel(poi.name, poi.walkingTime!)}
+                interactive={false}
+              />
+            );
+          })}
 
         {pois.map((poi) => (
           <Marker
             key={poi.name}
             position={[poi.lat, poi.lng]}
-            icon={createCustomIcon(poi.emoji, poi.isMain, poi.walkingTime)}
+            icon={createCustomIcon(poi.emoji, poi.isMain)}
           >
             <Popup>
               <div className={poi.isMain ? "main-popup" : ""}>
