@@ -32,6 +32,7 @@ interface CalendarDay {
 }
 
 const MIN_NIGHTS = 3;
+const SETUP_FEE = 350; // Cleaning & setup fee
 
 // Daily prices from Airbnb calendar
 function getDailyPrice(date: Date): number | null {
@@ -462,24 +463,29 @@ export function AvailabilityCalendar() {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
-                  className="text-center md:text-right"
+                  className="text-right"
                 >
-                  <p
-                    className={`text-xs mb-0.5 ${
-                      meetsMinStay ? "text-alpine-400" : "text-red-400"
-                    }`}
-                  >
-                    {nightCount} night{nightCount !== 1 ? "s" : ""}
-                    {!meetsMinStay && ` (min ${MIN_NIGHTS})`}
-                  </p>
+                  <div className="flex flex-col gap-0.5 text-xs text-alpine-400 mb-1">
+                    <div className="flex justify-between gap-4">
+                      <span>{nightCount} night{nightCount !== 1 ? "s" : ""}</span>
+                      <span>{totalPrice.toLocaleString()} CHF</span>
+                    </div>
+                    <div className="flex justify-between gap-4">
+                      <span>Setup fee</span>
+                      <span>{SETUP_FEE} CHF</span>
+                    </div>
+                  </div>
                   <p
                     className={`text-2xl md:text-3xl font-bold ${
                       meetsMinStay ? "text-gold-400" : "text-alpine-500"
                     }`}
                   >
-                    {totalPrice.toLocaleString()}{" "}
+                    {(totalPrice + SETUP_FEE).toLocaleString()}{" "}
                     <span className="text-lg">CHF</span>
                   </p>
+                  {!meetsMinStay && (
+                    <p className="text-xs text-red-400 mt-0.5">Min {MIN_NIGHTS} nights</p>
+                  )}
                 </motion.div>
               ) : (
                 <motion.div
@@ -489,7 +495,7 @@ export function AvailabilityCalendar() {
                   exit={{ opacity: 0 }}
                   className="text-center md:text-right text-alpine-500"
                 >
-                  <p className="text-xs mb-0.5">Min {MIN_NIGHTS} nights</p>
+                  <p className="text-xs mb-0.5">Min {MIN_NIGHTS} nights + {SETUP_FEE} CHF setup</p>
                   <p className="text-2xl md:text-3xl font-bold">— CHF</p>
                 </motion.div>
               )}
