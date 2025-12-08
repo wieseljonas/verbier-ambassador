@@ -1,8 +1,18 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { DayPicker, DateRange } from "react-day-picker";
+import {
+  format,
+  differenceInDays,
+  addDays,
+  isBefore,
+  isWithinInterval,
+  startOfDay,
+} from "date-fns";
 import { Loader2, X, Calendar, ArrowRight } from "lucide-react";
+import "react-day-picker/dist/style.css";
 
 interface BookedRange {
   start: string;
@@ -10,275 +20,50 @@ interface BookedRange {
   summary?: string;
 }
 
-interface CalendarDay {
-  date: Date;
-  dateString: string;
-  isCurrentMonth: boolean;
-  isToday: boolean;
-  isBooked: boolean;
-  isPast: boolean;
-  price: number | null;
-}
+const MIN_NIGHTS = 3;
 
 // Daily prices from Airbnb calendar
-function getDailyPrice(dateString: string): number | null {
-  const date = new Date(dateString);
+function getDailyPrice(date: Date): number | null {
   const year = date.getFullYear();
-  const month = date.getMonth(); // 0-indexed
+  const month = date.getMonth();
   const day = date.getDate();
 
-  // 2025 Pricing
   if (year === 2025) {
-    // October & November 2025: 590 CHF
     if (month === 9 || month === 10) return 590;
-
-    // December 2025: Variable pricing
     if (month === 11) {
       if (day <= 5) return 1200;
       if (day <= 13) return 1250;
       if (day <= 20) return 1400;
-      return 1890; // Dec 21-31
+      return 1890;
     }
   }
 
-  // 2026 Pricing
   if (year === 2026) {
-    // January 2026
     if (month === 0) {
       if (day <= 3) return 1890;
       if (day <= 10) return 1550;
       if (day <= 24) return 1250;
-      return 1350; // Jan 25-31
+      return 1350;
     }
-
-    // February 2026
     if (month === 1) {
       if (day <= 7) return 1450;
       if (day <= 14) return 1600;
-      return 1590; // Feb 15-28
+      return 1590;
     }
-
-    // March - December 2026: 1150 CHF
     if (month >= 2) return 1150;
   }
 
-  // 2027+ - default pricing
   if (year >= 2027) return 1150;
-
   return null;
-}
-
-function MiniMonth({
-  year,
-  month,
-  bookedDates,
-  index,
-  selectedStart,
-  selectedEnd,
-  onDateClick,
-  selectionMode,
-}: {
-  year: number;
-  month: number;
-  bookedDates: Set<string>;
-  index: number;
-  selectedStart: string | null;
-  selectedEnd: string | null;
-  onDateClick: (
-    dateString: string,
-    price: number | null,
-    isBooked: boolean,
-    isPast: boolean
-  ) => void;
-  selectionMode: "start" | "end";
-}) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const monthName = new Date(year, month).toLocaleDateString("en-US", {
-    month: "short",
-  });
-
-  const calendarDays = useMemo(() => {
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const startDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
-
-    const days: CalendarDay[] = [];
-
-    // Previous month padding
-    for (let i = startDay - 1; i >= 0; i--) {
-      const date = new Date(year, month, -i);
-      const dateString = date.toISOString().split("T")[0];
-      days.push({
-        date,
-        dateString,
-        isCurrentMonth: false,
-        isToday: false,
-        isBooked: false,
-        isPast: true,
-        price: null,
-      });
-    }
-
-    // Current month days
-    for (let i = 1; i <= lastDay.getDate(); i++) {
-      const date = new Date(year, month, i);
-      const dateString = date.toISOString().split("T")[0];
-      const isPast = date < today;
-      days.push({
-        date,
-        dateString,
-        isCurrentMonth: true,
-        isToday: date.toDateString() === today.toDateString(),
-        isBooked: bookedDates.has(dateString),
-        isPast,
-        price: isPast ? null : getDailyPrice(dateString),
-      });
-    }
-
-    // Fill remaining cells
-    const remainingDays = 42 - days.length;
-    for (let i = 1; i <= remainingDays; i++) {
-      const date = new Date(year, month + 1, i);
-      const dateString = date.toISOString().split("T")[0];
-      days.push({
-        date,
-        dateString,
-        isCurrentMonth: false,
-        isToday: false,
-        isBooked: false,
-        isPast: false,
-        price: null,
-      });
-    }
-
-    return days;
-  }, [year, month, bookedDates]);
-
-  const isInRange = (dateString: string) => {
-    if (!selectedStart || !selectedEnd) return false;
-    return dateString >= selectedStart && dateString <= selectedEnd;
-  };
-
-  const isRangeStart = (dateString: string) => dateString === selectedStart;
-  const isRangeEnd = (dateString: string) => dateString === selectedEnd;
-
-  const weekDays = ["M", "T", "W", "T", "F", "S", "S"];
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: index * 0.05 }}
-      className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-3 md:p-4"
-    >
-      {/* Month Header */}
-      <div className="text-center mb-2">
-        <span className="text-white font-medium text-sm">
-          {monthName}{" "}
-          <span className="text-alpine-400 font-normal">{year}</span>
-        </span>
-      </div>
-
-      {/* Week Days */}
-      <div className="grid grid-cols-7 gap-0.5 mb-1">
-        {weekDays.map((day, i) => (
-          <div
-            key={i}
-            className="text-center text-[10px] text-alpine-500 font-medium"
-          >
-            {day}
-          </div>
-        ))}
-      </div>
-
-      {/* Days Grid */}
-      <div className="grid grid-cols-7 gap-0.5">
-        {calendarDays.map((day, i) => {
-          const isAvailable =
-            !day.isBooked && !day.isPast && day.isCurrentMonth;
-          const inRange = isInRange(day.dateString);
-          const isStart = isRangeStart(day.dateString);
-          const isEnd = isRangeEnd(day.dateString);
-          const isSelectable = isAvailable && day.price !== null;
-
-          return (
-            <div
-              key={i}
-              onClick={() => {
-                if (day.isCurrentMonth) {
-                  onDateClick(
-                    day.dateString,
-                    day.price,
-                    day.isBooked,
-                    day.isPast
-                  );
-                }
-              }}
-              className={`
-                aspect-square flex flex-col items-center justify-center text-[10px] md:text-xs rounded-md transition-all relative
-                ${!day.isCurrentMonth ? "opacity-0 pointer-events-none" : ""}
-                ${
-                  day.isToday && !inRange && !isStart
-                    ? "ring-1 ring-gold-500"
-                    : ""
-                }
-                ${
-                  isSelectable
-                    ? "cursor-pointer hover:bg-white/20"
-                    : "cursor-default"
-                }
-                ${
-                  day.isPast && day.isCurrentMonth
-                    ? "text-alpine-600"
-                    : day.isBooked && day.isCurrentMonth
-                    ? "bg-red-500/30 text-red-300"
-                    : isStart || isEnd || inRange
-                    ? "bg-gold-500/80 text-alpine-950 font-semibold"
-                    : isAvailable
-                    ? "bg-emerald-500/25 text-emerald-300"
-                    : "text-alpine-500"
-                }
-                ${isStart && selectedEnd ? "rounded-r-none" : ""}
-                ${isEnd ? "rounded-l-none" : ""}
-                ${inRange && !isStart && !isEnd ? "rounded-none" : ""}
-              `}
-            >
-              <span>{day.isCurrentMonth ? day.date.getDate() : ""}</span>
-              {day.price &&
-                day.isCurrentMonth &&
-                !day.isPast &&
-                !day.isBooked && (
-                  <span
-                    className={`text-[6px] md:text-[7px] leading-none mt-0.5 ${
-                      isStart || isEnd || inRange
-                        ? "text-alpine-800"
-                        : "text-alpine-400"
-                    }`}
-                  >
-                    {day.price}
-                  </span>
-                )}
-            </div>
-          );
-        })}
-      </div>
-    </motion.div>
-  );
 }
 
 export function AvailabilityCalendar() {
   const [bookedRanges, setBookedRanges] = useState<BookedRange[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Selection state
-  const [selectedStart, setSelectedStart] = useState<string | null>(null);
-  const [selectedEnd, setSelectedEnd] = useState<string | null>(null);
-  const [selectionMode, setSelectionMode] = useState<"start" | "end">("start");
-
-  const MIN_NIGHTS = 3;
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [range, setRange] = useState<DateRange | undefined>();
+  const pickerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     async function fetchAvailability() {
@@ -297,115 +82,118 @@ export function AvailabilityCalendar() {
     fetchAvailability();
   }, []);
 
+  // Close picker when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        pickerRef.current &&
+        !pickerRef.current.contains(event.target as Node)
+      ) {
+        setPickerOpen(false);
+      }
+    }
+    if (pickerOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () =>
+        document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [pickerOpen]);
+
+  // Convert booked ranges to Date objects for the picker
   const bookedDates = useMemo(() => {
-    const dates = new Set<string>();
+    const dates: Date[] = [];
     bookedRanges.forEach((range) => {
       const start = new Date(range.start);
       const end = new Date(range.end);
       for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
-        dates.add(d.toISOString().split("T")[0]);
+        dates.push(new Date(d));
       }
     });
     return dates;
   }, [bookedRanges]);
 
-  // Calculate total price for selected range
-  const { totalPrice, nightCount, meetsMinStay } = useMemo(() => {
-    if (!selectedStart || !selectedEnd) return { totalPrice: 0, nightCount: 0, meetsMinStay: false };
-
-    let total = 0;
-    let nights = 0;
-    const start = new Date(selectedStart);
-    const end = new Date(selectedEnd);
-
-    // Count nights (not including checkout day)
-    for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
-      const dateString = d.toISOString().split("T")[0];
-      const price = getDailyPrice(dateString);
-      if (price) {
-        total += price;
-        nights++;
-      }
-    }
-
-    return { totalPrice: total, nightCount: nights, meetsMinStay: nights >= MIN_NIGHTS };
-  }, [selectedStart, selectedEnd]);
-
-  const handleDateClick = useCallback(
-    (
-      dateString: string,
-      price: number | null,
-      isBooked: boolean,
-      isPast: boolean
-    ) => {
-      // Don't allow selection of booked or past dates
-      if (isBooked || isPast || !price) return;
-
-      if (selectionMode === "start") {
-        setSelectedStart(dateString);
-        setSelectedEnd(null);
-        setSelectionMode("end");
-      } else {
-        // End date selection
-        if (dateString <= selectedStart!) {
-          // If clicked date is before or same as start, reset and use it as new start
-          setSelectedStart(dateString);
-          setSelectedEnd(null);
-          setSelectionMode("end");
-        } else {
-          // Check if any booked dates are in the range
-          const start = new Date(selectedStart!);
-          const end = new Date(dateString);
-          let hasBookedInRange = false;
-
-          for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-            if (bookedDates.has(d.toISOString().split("T")[0])) {
-              hasBookedInRange = true;
-              break;
-            }
-          }
-
-          if (hasBookedInRange) {
-            // Reset selection if booked dates in range
-            setSelectedStart(dateString);
-            setSelectedEnd(null);
-            setSelectionMode("end");
-          } else {
-            setSelectedEnd(dateString);
-            setSelectionMode("start");
-          }
-        }
-      }
+  // Check if a date is booked
+  const isDateBooked = useCallback(
+    (date: Date) => {
+      return bookedDates.some(
+        (bookedDate) =>
+          bookedDate.toDateString() === date.toDateString()
+      );
     },
-    [selectionMode, selectedStart, bookedDates]
+    [bookedDates]
   );
 
-  const clearSelection = () => {
-    setSelectedStart(null);
-    setSelectedEnd(null);
-    setSelectionMode("start");
-  };
+  // Check if range contains booked dates
+  const rangeContainsBookedDates = useCallback(
+    (from: Date, to: Date) => {
+      for (let d = new Date(from); d <= to; d.setDate(d.getDate() + 1)) {
+        if (isDateBooked(d)) return true;
+      }
+      return false;
+    },
+    [isDateBooked]
+  );
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
+  // Calculate total price
+  const { totalPrice, nightCount, meetsMinStay } = useMemo(() => {
+    if (!range?.from || !range?.to)
+      return { totalPrice: 0, nightCount: 0, meetsMinStay: false };
 
-  // Generate next 12 months
-  const months = useMemo(() => {
-    const result = [];
-    const now = new Date();
-    for (let i = 0; i < 12; i++) {
-      const date = new Date(now.getFullYear(), now.getMonth() + i, 1);
-      result.push({ year: date.getFullYear(), month: date.getMonth() });
+    let total = 0;
+    const nights = differenceInDays(range.to, range.from);
+
+    for (let d = new Date(range.from); d < range.to; d.setDate(d.getDate() + 1)) {
+      const price = getDailyPrice(d);
+      if (price) total += price;
     }
-    return result;
-  }, []);
+
+    return {
+      totalPrice: total,
+      nightCount: nights,
+      meetsMinStay: nights >= MIN_NIGHTS,
+    };
+  }, [range]);
+
+  const handleSelect = (newRange: DateRange | undefined) => {
+    if (!newRange) {
+      setRange(undefined);
+      return;
+    }
+
+    // If selecting end date, check for booked dates in range
+    if (newRange.from && newRange.to) {
+      if (rangeContainsBookedDates(newRange.from, newRange.to)) {
+        // Reset to just the new end date as start
+        setRange({ from: newRange.to, to: undefined });
+        return;
+      }
+    }
+
+    setRange(newRange);
+
+    // Close picker when full range is selected
+    if (newRange.from && newRange.to) {
+      setTimeout(() => setPickerOpen(false), 300);
+    }
+  };
+
+  const clearSelection = () => {
+    setRange(undefined);
+  };
+
+  const formatDate = (date: Date) => {
+    return format(date, "EEE, MMM d, yyyy");
+  };
+
+  const formatShortDate = (date: Date) => {
+    return format(date, "MMM d");
+  };
+
+  // Disabled dates: past dates and booked dates
+  const disabledDays = [
+    { before: startOfDay(new Date()) },
+    ...bookedDates.map((d) => startOfDay(d)),
+  ];
 
   if (loading) {
     return (
@@ -426,7 +214,10 @@ export function AvailabilityCalendar() {
   return (
     <div className="space-y-6">
       {/* Selection Panel - Always Visible */}
-      <div className="bg-gradient-to-r from-gold-500/20 to-gold-600/20 backdrop-blur-lg border border-gold-500/30 rounded-2xl p-4 md:p-6 relative">
+      <div
+        ref={pickerRef}
+        className="bg-gradient-to-r from-gold-500/20 to-gold-600/20 backdrop-blur-lg border border-gold-500/30 rounded-2xl p-4 md:p-6 relative"
+      >
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex-1">
             <div className="flex items-center gap-2 text-gold-400 text-sm font-medium mb-3">
@@ -437,18 +228,24 @@ export function AvailabilityCalendar() {
             <div className="flex items-center gap-3">
               {/* Check-in - Clickable */}
               <button
-                onClick={() => setSelectionMode("start")}
+                onClick={() => setPickerOpen(true)}
                 className={`text-left px-4 py-3 rounded-xl transition-all ${
-                  selectionMode === "start"
+                  pickerOpen && !range?.to
                     ? "bg-gold-500/30 ring-2 ring-gold-500"
                     : "bg-white/5 hover:bg-white/10"
                 }`}
               >
-                <p className={`text-xs mb-0.5 ${selectionMode === "start" ? "text-gold-400" : "text-alpine-400"}`}>
+                <p
+                  className={`text-xs mb-0.5 ${
+                    pickerOpen && !range?.to
+                      ? "text-gold-400"
+                      : "text-alpine-400"
+                  }`}
+                >
                   Check-in
                 </p>
                 <p className="font-medium text-sm md:text-base text-white">
-                  {selectedStart ? formatDate(selectedStart) : "Select date"}
+                  {range?.from ? formatDate(range.from) : "Select date"}
                 </p>
               </button>
 
@@ -456,18 +253,24 @@ export function AvailabilityCalendar() {
 
               {/* Check-out - Clickable */}
               <button
-                onClick={() => setSelectionMode("end")}
+                onClick={() => setPickerOpen(true)}
                 className={`text-left px-4 py-3 rounded-xl transition-all ${
-                  selectionMode === "end"
+                  pickerOpen && range?.from && !range?.to
                     ? "bg-gold-500/30 ring-2 ring-gold-500"
                     : "bg-white/5 hover:bg-white/10"
                 }`}
               >
-                <p className={`text-xs mb-0.5 ${selectionMode === "end" ? "text-gold-400" : "text-alpine-400"}`}>
+                <p
+                  className={`text-xs mb-0.5 ${
+                    pickerOpen && range?.from && !range?.to
+                      ? "text-gold-400"
+                      : "text-alpine-400"
+                  }`}
+                >
                   Check-out
                 </p>
                 <p className="font-medium text-sm md:text-base text-white">
-                  {selectedEnd ? formatDate(selectedEnd) : "Select date"}
+                  {range?.to ? formatDate(range.to) : "Select date"}
                 </p>
               </button>
             </div>
@@ -476,7 +279,7 @@ export function AvailabilityCalendar() {
           {/* Price & Book Section */}
           <div className="flex items-center gap-4 md:gap-6">
             <AnimatePresence mode="wait">
-              {selectedEnd ? (
+              {range?.to ? (
                 <motion.div
                   key="price"
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -484,11 +287,19 @@ export function AvailabilityCalendar() {
                   exit={{ opacity: 0, scale: 0.9 }}
                   className="text-center md:text-right"
                 >
-                  <p className={`text-xs mb-0.5 ${meetsMinStay ? "text-alpine-400" : "text-red-400"}`}>
+                  <p
+                    className={`text-xs mb-0.5 ${
+                      meetsMinStay ? "text-alpine-400" : "text-red-400"
+                    }`}
+                  >
                     {nightCount} night{nightCount !== 1 ? "s" : ""}
                     {!meetsMinStay && ` (min ${MIN_NIGHTS})`}
                   </p>
-                  <p className={`text-2xl md:text-3xl font-bold ${meetsMinStay ? "text-gold-400" : "text-alpine-500"}`}>
+                  <p
+                    className={`text-2xl md:text-3xl font-bold ${
+                      meetsMinStay ? "text-gold-400" : "text-alpine-500"
+                    }`}
+                  >
                     {totalPrice.toLocaleString()}{" "}
                     <span className="text-lg">CHF</span>
                   </p>
@@ -508,7 +319,11 @@ export function AvailabilityCalendar() {
             </AnimatePresence>
 
             <motion.a
-              href={meetsMinStay ? `/#contact?checkin=${selectedStart}&checkout=${selectedEnd}` : "#"}
+              href={
+                meetsMinStay
+                  ? `/#contact?checkin=${range?.from?.toISOString()}&checkout=${range?.to?.toISOString()}`
+                  : "#"
+              }
               className={`font-semibold px-4 py-2 rounded-lg transition-all text-sm whitespace-nowrap ${
                 meetsMinStay
                   ? "bg-gold-500 hover:bg-gold-400 text-alpine-950 cursor-pointer"
@@ -522,8 +337,8 @@ export function AvailabilityCalendar() {
             </motion.a>
           </div>
 
-          {/* Clear button - only show when there's a selection */}
-          {(selectedStart || selectedEnd) && (
+          {/* Clear button */}
+          {(range?.from || range?.to) && (
             <button
               onClick={clearSelection}
               className="absolute top-3 right-3 text-alpine-400 hover:text-white transition-colors"
@@ -532,44 +347,104 @@ export function AvailabilityCalendar() {
             </button>
           )}
         </div>
+
+        {/* Date Picker Dropdown */}
+        <AnimatePresence>
+          {pickerOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10, height: 0 }}
+              animate={{ opacity: 1, y: 0, height: "auto" }}
+              exit={{ opacity: 0, y: -10, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="mt-4 pt-4 border-t border-white/10 overflow-hidden"
+            >
+              <DayPicker
+                mode="range"
+                selected={range}
+                onSelect={handleSelect}
+                numberOfMonths={2}
+                disabled={disabledDays}
+                fromMonth={new Date()}
+                modifiers={{
+                  booked: bookedDates,
+                }}
+                modifiersClassNames={{
+                  booked: "rdp-day_booked",
+                }}
+                classNames={{
+                  months: "flex flex-col sm:flex-row gap-4 justify-center",
+                  month: "space-y-4",
+                  caption: "flex justify-center pt-1 relative items-center text-white",
+                  caption_label: "text-sm font-medium",
+                  nav: "space-x-1 flex items-center",
+                  nav_button: "h-7 w-7 bg-white/10 hover:bg-white/20 rounded-lg flex items-center justify-center text-white transition-colors",
+                  nav_button_previous: "absolute left-1",
+                  nav_button_next: "absolute right-1",
+                  table: "w-full border-collapse",
+                  head_row: "flex",
+                  head_cell: "text-alpine-400 rounded-md w-9 font-normal text-[0.8rem]",
+                  row: "flex w-full mt-2",
+                  cell: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20",
+                  day: "h-9 w-9 p-0 font-normal rounded-lg transition-all hover:bg-white/20 text-white flex items-center justify-center",
+                  day_range_start: "bg-gold-500 text-alpine-950 rounded-r-none hover:bg-gold-500",
+                  day_range_end: "bg-gold-500 text-alpine-950 rounded-l-none hover:bg-gold-500",
+                  day_selected: "bg-gold-500 text-alpine-950 hover:bg-gold-500",
+                  day_today: "ring-1 ring-gold-500",
+                  day_outside: "opacity-30",
+                  day_disabled: "text-alpine-600 opacity-50 cursor-not-allowed hover:bg-transparent",
+                  day_range_middle: "bg-gold-500/30 text-white rounded-none",
+                  day_hidden: "invisible",
+                }}
+                components={{
+                  DayContent: ({ date }) => {
+                    const price = getDailyPrice(date);
+                    const isBooked = isDateBooked(date);
+                    const isPast = isBefore(date, startOfDay(new Date()));
+
+                    return (
+                      <div className="flex flex-col items-center">
+                        <span>{date.getDate()}</span>
+                        {price && !isBooked && !isPast && (
+                          <span className="text-[8px] text-alpine-400 leading-none">
+                            {price}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  },
+                }}
+              />
+
+              {/* Legend */}
+              <div className="flex flex-wrap items-center justify-center gap-4 mt-4 pt-4 border-t border-white/10 text-xs">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded bg-gold-500" />
+                  <span className="text-alpine-300">Selected</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded bg-white/20" />
+                  <span className="text-alpine-300">Available</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded bg-alpine-700 opacity-50" />
+                  <span className="text-alpine-300">Unavailable</span>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
-      {/* 12 Month Grid - 3 per row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-        {months.map((m, index) => (
-          <MiniMonth
-            key={`${m.year}-${m.month}`}
-            year={m.year}
-            month={m.month}
-            bookedDates={bookedDates}
-            index={index}
-            selectedStart={selectedStart}
-            selectedEnd={selectedEnd}
-            onDateClick={handleDateClick}
-            selectionMode={selectionMode}
-          />
-        ))}
-      </div>
-
-      {/* Legend */}
-      <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6 text-xs md:text-sm pt-4">
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 md:w-4 md:h-4 rounded bg-emerald-500/25" />
-          <span className="text-alpine-300">Available</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 md:w-4 md:h-4 rounded bg-red-500/30" />
-          <span className="text-alpine-300">Booked</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 md:w-4 md:h-4 rounded bg-gold-500/80" />
-          <span className="text-alpine-300">Selected</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 md:w-4 md:h-4 rounded border border-gold-500" />
-          <span className="text-alpine-300">Today</span>
-        </div>
-      </div>
+      {/* Quick tip when picker is closed */}
+      {!pickerOpen && !range?.from && (
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-center text-alpine-400 text-sm"
+        >
+          Click on Check-in or Check-out to select your dates
+        </motion.p>
+      )}
     </div>
   );
 }
