@@ -119,26 +119,37 @@ export function Contact() {
               service.
             </p>
 
-            {/* Airbnb CTA - Liquid Glass Style */}
-            <motion.a
-              href="https://www.airbnb.ch/rooms/54289819"
-              target="_blank"
-              rel="noopener noreferrer"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-b from-[#FF5A5F] to-[#E84850] text-white font-medium tracking-wide text-sm rounded-2xl shadow-[0_10px_40px_-10px_rgba(255,90,95,0.5),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_14px_50px_-10px_rgba(255,90,95,0.6),inset_0_1px_0_rgba(255,255,255,0.25)] transition-all duration-300 mb-12 relative overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/5 to-white/10 pointer-events-none" />
-              <svg
-                className="w-5 h-5 relative z-10"
-                viewBox="0 0 24 24"
-                fill="currentColor"
+            {/* CTA Buttons */}
+            <div className="flex flex-wrap items-center gap-4 mb-12">
+              <motion.a
+                href="/availability"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="inline-flex items-center gap-2 px-6 py-3.5 bg-alpine-900 text-white font-medium tracking-wide text-sm rounded-2xl shadow-[0_10px_40px_-10px_rgba(15,23,42,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:shadow-[0_14px_50px_-10px_rgba(15,23,42,0.5)] transition-all duration-300"
               >
-                <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm5.5 17.4c-.3.6-1.1 1.1-2.1 1.1-1.5 0-2.5-1-3.4-2.2-.9 1.2-1.9 2.2-3.4 2.2-1 0-1.8-.5-2.1-1.1-.4-.8-.3-1.8.3-3.1l2.9-6.1c.2-.4.5-.6.9-.6s.7.2.9.6l2.9 6.1c.6 1.3.7 2.3.1 3.1z" />
-              </svg>
-              <span className="relative z-10">Book on Airbnb</span>
-              <ExternalLink className="w-4 h-4 relative z-10 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-            </motion.a>
+                <Calendar className="w-4 h-4" />
+                <span>Check Availability</span>
+              </motion.a>
+              <motion.a
+                href="https://www.airbnb.ch/rooms/54289819"
+                target="_blank"
+                rel="noopener noreferrer"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="group inline-flex items-center gap-3 px-6 py-3.5 bg-gradient-to-b from-[#FF5A5F] to-[#E84850] text-white font-medium tracking-wide text-sm rounded-2xl shadow-[0_10px_40px_-10px_rgba(255,90,95,0.5),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_14px_50px_-10px_rgba(255,90,95,0.6),inset_0_1px_0_rgba(255,255,255,0.25)] transition-all duration-300 relative overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/5 to-white/10 pointer-events-none" />
+                <svg
+                  className="w-5 h-5 relative z-10"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm5.5 17.4c-.3.6-1.1 1.1-2.1 1.1-1.5 0-2.5-1-3.4-2.2-.9 1.2-1.9 2.2-3.4 2.2-1 0-1.8-.5-2.1-1.1-.4-.8-.3-1.8.3-3.1l2.9-6.1c.2-.4.5-.6.9-.6s.7.2.9.6l2.9 6.1c.6 1.3.7 2.3.1 3.1z" />
+                </svg>
+                <span className="relative z-10">Book on Airbnb</span>
+                <ExternalLink className="w-4 h-4 relative z-10 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+              </motion.a>
+            </div>
 
             {/* Address Card - Glass */}
             <motion.div
