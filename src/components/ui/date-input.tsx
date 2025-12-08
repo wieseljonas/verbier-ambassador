@@ -3,7 +3,7 @@
 import React, { forwardRef, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
-interface DateInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface DateInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
   value?: Date;
   onChange?: (date: Date | undefined) => void;
 }
