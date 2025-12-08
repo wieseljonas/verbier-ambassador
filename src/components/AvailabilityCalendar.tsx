@@ -31,7 +31,7 @@ function getDailyPrice(dateString: string): number | null {
   if (year === 2025) {
     // October & November 2025: 590 CHF
     if (month === 9 || month === 10) return 590;
-    
+
     // December 2025: Variable pricing
     if (month === 11) {
       if (day <= 5) return 1200;
@@ -50,14 +50,14 @@ function getDailyPrice(dateString: string): number | null {
       if (day <= 24) return 1250;
       return 1350; // Jan 25-31
     }
-    
+
     // February 2026
     if (month === 1) {
       if (day <= 7) return 1450;
       if (day <= 14) return 1600;
       return 1590; // Feb 15-28
     }
-    
+
     // March - December 2026: 1150 CHF
     if (month >= 2) return 1150;
   }
@@ -84,7 +84,12 @@ function MiniMonth({
   index: number;
   selectedStart: string | null;
   selectedEnd: string | null;
-  onDateClick: (dateString: string, price: number | null, isBooked: boolean, isPast: boolean) => void;
+  onDateClick: (
+    dateString: string,
+    price: number | null,
+    isBooked: boolean,
+    isPast: boolean
+  ) => void;
   selectionMode: "start" | "end";
 }) {
   const today = new Date();
@@ -191,7 +196,8 @@ function MiniMonth({
       {/* Days Grid */}
       <div className="grid grid-cols-7 gap-0.5">
         {calendarDays.map((day, i) => {
-          const isAvailable = !day.isBooked && !day.isPast && day.isCurrentMonth;
+          const isAvailable =
+            !day.isBooked && !day.isPast && day.isCurrentMonth;
           const inRange = isInRange(day.dateString);
           const isStart = isRangeStart(day.dateString);
           const isEnd = isRangeEnd(day.dateString);
@@ -202,14 +208,27 @@ function MiniMonth({
               key={i}
               onClick={() => {
                 if (day.isCurrentMonth) {
-                  onDateClick(day.dateString, day.price, day.isBooked, day.isPast);
+                  onDateClick(
+                    day.dateString,
+                    day.price,
+                    day.isBooked,
+                    day.isPast
+                  );
                 }
               }}
               className={`
                 aspect-square flex flex-col items-center justify-center text-[10px] md:text-xs rounded-md transition-all relative
                 ${!day.isCurrentMonth ? "opacity-0 pointer-events-none" : ""}
-                ${day.isToday && !inRange && !isStart ? "ring-1 ring-gold-500" : ""}
-                ${isSelectable ? "cursor-pointer hover:bg-white/20" : "cursor-default"}
+                ${
+                  day.isToday && !inRange && !isStart
+                    ? "ring-1 ring-gold-500"
+                    : ""
+                }
+                ${
+                  isSelectable
+                    ? "cursor-pointer hover:bg-white/20"
+                    : "cursor-default"
+                }
                 ${
                   day.isPast && day.isCurrentMonth
                     ? "text-alpine-600"
@@ -227,11 +246,20 @@ function MiniMonth({
               `}
             >
               <span>{day.isCurrentMonth ? day.date.getDate() : ""}</span>
-              {day.price && day.isCurrentMonth && !day.isPast && !day.isBooked && (
-                <span className={`text-[6px] md:text-[7px] leading-none mt-0.5 ${isStart || isEnd || inRange ? "text-alpine-800" : "text-alpine-400"}`}>
-                  {day.price}
-                </span>
-              )}
+              {day.price &&
+                day.isCurrentMonth &&
+                !day.isPast &&
+                !day.isBooked && (
+                  <span
+                    className={`text-[6px] md:text-[7px] leading-none mt-0.5 ${
+                      isStart || isEnd || inRange
+                        ? "text-alpine-800"
+                        : "text-alpine-400"
+                    }`}
+                  >
+                    {day.price}
+                  </span>
+                )}
             </div>
           );
         })}
@@ -244,11 +272,13 @@ export function AvailabilityCalendar() {
   const [bookedRanges, setBookedRanges] = useState<BookedRange[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Selection state
   const [selectedStart, setSelectedStart] = useState<string | null>(null);
   const [selectedEnd, setSelectedEnd] = useState<string | null>(null);
   const [selectionMode, setSelectionMode] = useState<"start" | "end">("start");
+
+  const MIN_NIGHTS = 3;
 
   useEffect(() => {
     async function fetchAvailability() {
@@ -280,14 +310,14 @@ export function AvailabilityCalendar() {
   }, [bookedRanges]);
 
   // Calculate total price for selected range
-  const { totalPrice, nightCount } = useMemo(() => {
-    if (!selectedStart || !selectedEnd) return { totalPrice: 0, nightCount: 0 };
-    
+  const { totalPrice, nightCount, meetsMinStay } = useMemo(() => {
+    if (!selectedStart || !selectedEnd) return { totalPrice: 0, nightCount: 0, meetsMinStay: false };
+
     let total = 0;
     let nights = 0;
     const start = new Date(selectedStart);
     const end = new Date(selectedEnd);
-    
+
     // Count nights (not including checkout day)
     for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
       const dateString = d.toISOString().split("T")[0];
@@ -297,50 +327,58 @@ export function AvailabilityCalendar() {
         nights++;
       }
     }
-    
-    return { totalPrice: total, nightCount: nights };
+
+    return { totalPrice: total, nightCount: nights, meetsMinStay: nights >= MIN_NIGHTS };
   }, [selectedStart, selectedEnd]);
 
-  const handleDateClick = useCallback((dateString: string, price: number | null, isBooked: boolean, isPast: boolean) => {
-    // Don't allow selection of booked or past dates
-    if (isBooked || isPast || !price) return;
+  const handleDateClick = useCallback(
+    (
+      dateString: string,
+      price: number | null,
+      isBooked: boolean,
+      isPast: boolean
+    ) => {
+      // Don't allow selection of booked or past dates
+      if (isBooked || isPast || !price) return;
 
-    if (selectionMode === "start") {
-      setSelectedStart(dateString);
-      setSelectedEnd(null);
-      setSelectionMode("end");
-    } else {
-      // End date selection
-      if (dateString <= selectedStart!) {
-        // If clicked date is before or same as start, reset and use it as new start
+      if (selectionMode === "start") {
         setSelectedStart(dateString);
         setSelectedEnd(null);
         setSelectionMode("end");
       } else {
-        // Check if any booked dates are in the range
-        const start = new Date(selectedStart!);
-        const end = new Date(dateString);
-        let hasBookedInRange = false;
-        
-        for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-          if (bookedDates.has(d.toISOString().split("T")[0])) {
-            hasBookedInRange = true;
-            break;
-          }
-        }
-        
-        if (hasBookedInRange) {
-          // Reset selection if booked dates in range
+        // End date selection
+        if (dateString <= selectedStart!) {
+          // If clicked date is before or same as start, reset and use it as new start
           setSelectedStart(dateString);
           setSelectedEnd(null);
           setSelectionMode("end");
         } else {
-          setSelectedEnd(dateString);
-          setSelectionMode("start");
+          // Check if any booked dates are in the range
+          const start = new Date(selectedStart!);
+          const end = new Date(dateString);
+          let hasBookedInRange = false;
+
+          for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+            if (bookedDates.has(d.toISOString().split("T")[0])) {
+              hasBookedInRange = true;
+              break;
+            }
+          }
+
+          if (hasBookedInRange) {
+            // Reset selection if booked dates in range
+            setSelectedStart(dateString);
+            setSelectedEnd(null);
+            setSelectionMode("end");
+          } else {
+            setSelectedEnd(dateString);
+            setSelectionMode("start");
+          }
         }
       }
-    }
-  }, [selectionMode, selectedStart, bookedDates]);
+    },
+    [selectionMode, selectedStart, bookedDates]
+  );
 
   const clearSelection = () => {
     setSelectedStart(null);
@@ -387,80 +425,114 @@ export function AvailabilityCalendar() {
 
   return (
     <div className="space-y-6">
-      {/* Selection Panel */}
-      <AnimatePresence>
-        {(selectedStart || selectedEnd) && (
-          <motion.div
-            initial={{ opacity: 0, y: -20, height: 0 }}
-            animate={{ opacity: 1, y: 0, height: "auto" }}
-            exit={{ opacity: 0, y: -20, height: 0 }}
-            className="bg-gradient-to-r from-gold-500/20 to-gold-600/20 backdrop-blur-lg border border-gold-500/30 rounded-2xl p-4 md:p-6 overflow-hidden"
-          >
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 text-gold-400 text-sm font-medium mb-2">
-                  <Calendar className="w-4 h-4" />
-                  <span>
-                    {selectedEnd ? "Your Selection" : "Select checkout date"}
-                  </span>
-                </div>
-                
-                <div className="flex items-center gap-3 text-white">
-                  <div className="text-center">
-                    <p className="text-xs text-alpine-400 mb-0.5">Check-in</p>
-                    <p className="font-medium text-sm md:text-base">
-                      {selectedStart ? formatDate(selectedStart) : "—"}
-                    </p>
-                  </div>
-                  
-                  <ArrowRight className="w-5 h-5 text-gold-500 flex-shrink-0" />
-                  
-                  <div className="text-center">
-                    <p className="text-xs text-alpine-400 mb-0.5">Check-out</p>
-                    <p className="font-medium text-sm md:text-base">
-                      {selectedEnd ? formatDate(selectedEnd) : "—"}
-                    </p>
-                  </div>
-                </div>
-              </div>
+      {/* Selection Panel - Always Visible */}
+      <div className="bg-gradient-to-r from-gold-500/20 to-gold-600/20 backdrop-blur-lg border border-gold-500/30 rounded-2xl p-4 md:p-6 relative">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 text-gold-400 text-sm font-medium mb-3">
+              <Calendar className="w-4 h-4" />
+              <span>Select Your Dates</span>
+            </div>
 
-              {selectedEnd && (
-                <div className="flex items-center gap-4 md:gap-6">
-                  <div className="text-center md:text-right">
-                    <p className="text-xs text-alpine-400 mb-0.5">{nightCount} night{nightCount !== 1 ? "s" : ""}</p>
-                    <p className="text-2xl md:text-3xl font-bold text-gold-400">
-                      {totalPrice.toLocaleString()} <span className="text-lg">CHF</span>
-                    </p>
-                  </div>
-                  
-                  <motion.a
-                    href={`/#contact?checkin=${selectedStart}&checkout=${selectedEnd}`}
-                    className="bg-gold-500 hover:bg-gold-400 text-alpine-950 font-semibold px-4 py-2 rounded-lg transition-colors text-sm whitespace-nowrap"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    Book Now
-                  </motion.a>
-                </div>
-              )}
-
+            <div className="flex items-center gap-3">
+              {/* Check-in - Clickable */}
               <button
-                onClick={clearSelection}
-                className="absolute top-3 right-3 text-alpine-400 hover:text-white transition-colors"
+                onClick={() => setSelectionMode("start")}
+                className={`text-left px-4 py-3 rounded-xl transition-all ${
+                  selectionMode === "start"
+                    ? "bg-gold-500/30 ring-2 ring-gold-500"
+                    : "bg-white/5 hover:bg-white/10"
+                }`}
               >
-                <X className="w-5 h-5" />
+                <p className={`text-xs mb-0.5 ${selectionMode === "start" ? "text-gold-400" : "text-alpine-400"}`}>
+                  Check-in
+                </p>
+                <p className="font-medium text-sm md:text-base text-white">
+                  {selectedStart ? formatDate(selectedStart) : "Select date"}
+                </p>
+              </button>
+
+              <ArrowRight className="w-5 h-5 text-gold-500 flex-shrink-0" />
+
+              {/* Check-out - Clickable */}
+              <button
+                onClick={() => setSelectionMode("end")}
+                className={`text-left px-4 py-3 rounded-xl transition-all ${
+                  selectionMode === "end"
+                    ? "bg-gold-500/30 ring-2 ring-gold-500"
+                    : "bg-white/5 hover:bg-white/10"
+                }`}
+              >
+                <p className={`text-xs mb-0.5 ${selectionMode === "end" ? "text-gold-400" : "text-alpine-400"}`}>
+                  Check-out
+                </p>
+                <p className="font-medium text-sm md:text-base text-white">
+                  {selectedEnd ? formatDate(selectedEnd) : "Select date"}
+                </p>
               </button>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
 
-      {/* Instructions */}
-      {!selectedStart && (
-        <div className="text-center text-alpine-400 text-sm">
-          <p>Click on a date to start selecting your stay</p>
+          {/* Price & Book Section */}
+          <div className="flex items-center gap-4 md:gap-6">
+            <AnimatePresence mode="wait">
+              {selectedEnd ? (
+                <motion.div
+                  key="price"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="text-center md:text-right"
+                >
+                  <p className={`text-xs mb-0.5 ${meetsMinStay ? "text-alpine-400" : "text-red-400"}`}>
+                    {nightCount} night{nightCount !== 1 ? "s" : ""}
+                    {!meetsMinStay && ` (min ${MIN_NIGHTS})`}
+                  </p>
+                  <p className={`text-2xl md:text-3xl font-bold ${meetsMinStay ? "text-gold-400" : "text-alpine-500"}`}>
+                    {totalPrice.toLocaleString()}{" "}
+                    <span className="text-lg">CHF</span>
+                  </p>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="placeholder"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="text-center md:text-right text-alpine-500"
+                >
+                  <p className="text-xs mb-0.5">Min {MIN_NIGHTS} nights</p>
+                  <p className="text-2xl md:text-3xl font-bold">— CHF</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <motion.a
+              href={meetsMinStay ? `/#contact?checkin=${selectedStart}&checkout=${selectedEnd}` : "#"}
+              className={`font-semibold px-4 py-2 rounded-lg transition-all text-sm whitespace-nowrap ${
+                meetsMinStay
+                  ? "bg-gold-500 hover:bg-gold-400 text-alpine-950 cursor-pointer"
+                  : "bg-alpine-700 text-alpine-500 cursor-not-allowed"
+              }`}
+              whileHover={meetsMinStay ? { scale: 1.02 } : {}}
+              whileTap={meetsMinStay ? { scale: 0.98 } : {}}
+              onClick={(e) => !meetsMinStay && e.preventDefault()}
+            >
+              Book Now
+            </motion.a>
+          </div>
+
+          {/* Clear button - only show when there's a selection */}
+          {(selectedStart || selectedEnd) && (
+            <button
+              onClick={clearSelection}
+              className="absolute top-3 right-3 text-alpine-400 hover:text-white transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
         </div>
-      )}
+      </div>
 
       {/* 12 Month Grid - 3 per row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
