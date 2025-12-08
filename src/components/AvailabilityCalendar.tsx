@@ -208,27 +208,27 @@ function MiniMonth({
               className={`
                 aspect-square flex flex-col items-center justify-center text-[10px] md:text-xs rounded-md transition-all relative
                 ${!day.isCurrentMonth ? "opacity-0 pointer-events-none" : ""}
-                ${day.isToday && !inRange ? "ring-1 ring-gold-500" : ""}
+                ${day.isToday && !inRange && !isStart ? "ring-1 ring-gold-500" : ""}
                 ${isSelectable ? "cursor-pointer hover:bg-white/20" : "cursor-default"}
                 ${
                   day.isPast && day.isCurrentMonth
                     ? "text-alpine-600"
                     : day.isBooked && day.isCurrentMonth
                     ? "bg-red-500/30 text-red-300"
-                    : inRange
+                    : isStart || isEnd || inRange
                     ? "bg-gold-500/80 text-alpine-950 font-semibold"
                     : isAvailable
                     ? "bg-emerald-500/25 text-emerald-300"
                     : "text-alpine-500"
                 }
-                ${isStart ? "rounded-r-none" : ""}
+                ${isStart && selectedEnd ? "rounded-r-none" : ""}
                 ${isEnd ? "rounded-l-none" : ""}
                 ${inRange && !isStart && !isEnd ? "rounded-none" : ""}
               `}
             >
               <span>{day.isCurrentMonth ? day.date.getDate() : ""}</span>
               {day.price && day.isCurrentMonth && !day.isPast && !day.isBooked && (
-                <span className={`text-[6px] md:text-[7px] leading-none mt-0.5 ${inRange ? "text-alpine-800" : "text-alpine-400"}`}>
+                <span className={`text-[6px] md:text-[7px] leading-none mt-0.5 ${isStart || isEnd || inRange ? "text-alpine-800" : "text-alpine-400"}`}>
                   {day.price}
                 </span>
               )}
@@ -462,8 +462,8 @@ export function AvailabilityCalendar() {
         </div>
       )}
 
-      {/* 12 Month Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+      {/* 12 Month Grid - 3 per row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {months.map((m, index) => (
           <MiniMonth
             key={`${m.year}-${m.month}`}
